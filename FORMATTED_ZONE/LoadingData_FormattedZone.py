@@ -35,6 +35,8 @@ def generate_table(conn, df, name):
             for table in existingTables:
                 if(table[0] == name):
                     conn.execute("DROP TABLE " + name)
+        print("Saving table {table} to the database".format(table=name))
+        print("\n")
         conn.execute("CREATE TABLE " + name + " AS SELECT * FROM df")
 
 def drop_table(conn, name):
@@ -52,19 +54,22 @@ dic = {}
 dirc = "../LANDING/PERSISTENT/"
 
 existingTables=conn.execute("SHOW TABLES").fetchall()
+existingTables=[table[0] for table in existingTables]
 
 for f in os.listdir(dirc):
+    
     if "csv" in f:
         name = f[:-4].replace("-", "_")
         if name not in existingTables:
             aux = f.split("$")[0]
+            print("New datasource is detected: ",name)
+            print("\n")
             if f.split("$")[0] in dic.keys():
                 dic[aux] = dic[aux] + [f]
             else:
                 dic[aux] = [f]
             df = pd.read_csv(dirc + f, encoding = "ISO-8859-1")
             generate_table(conn, df, name)
-
 
 # In[5]:
 
